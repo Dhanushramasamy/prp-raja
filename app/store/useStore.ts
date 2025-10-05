@@ -31,14 +31,15 @@ interface Store {
 }
 
 const initialFormData: PoultryData = {
-  normal_eggs: 0,
-  double_eggs: 0,
-  small_eggs: 0,
+  iruppu_normal: 0,
+  iruppu_doubles: 0,
+  iruppu_small: 0,
   direct_sales: 0,
   sales_breakage: 0,
   set_breakage: 0,
   mortality: 0,
   culls_in: 0,
+  vaaram: '',
 };
 
 export const useStore = create<Store>((set, get) => ({

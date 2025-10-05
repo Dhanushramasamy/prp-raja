@@ -13,16 +13,23 @@ import {
 import { useStore } from '../store/useStore';
 import { supabase, SetNumberType } from '../lib/supabase';
 import { PoultryData } from '../types';
+import { calculateLedgerData, saveCalculatedData } from '../lib/calculations';
 
 const FIELD_LABELS = {
-  normal_eggs: 'Normal (முட்டை)',
-  double_eggs: 'Double (இரட்டை முட்டை)',
-  small_eggs: 'Small (சிறிய முட்டை)',
+  // Stock balance fields (these are the actual inputs)
+  iruppu_normal: 'Iruppu Normal (இருப்பு சாதாரண)',
+  iruppu_doubles: 'Iruppu Doubles (இருப்பு இரட்டை)',
+  iruppu_small: 'Iruppu Small (இருப்பு சிறிய)',
+
+  // Sales and losses
   direct_sales: 'Ennaikai (எணிக்கை) - Direct Sales',
   sales_breakage: 'Virpanai Udaivu (விற்பனை உடைவு)',
   set_breakage: 'Set Udaivu (செட் உடைவு)',
   mortality: 'Irappu (இறப்பு) - Mortality',
   culls_in: 'Culls (கல்லுகள்)',
+
+  // Week field
+  vaaram: 'Vaaram (வாரம்) - Week (e.g., 27.6)',
 };
 
 export default function DataEntryForm() {
@@ -63,7 +70,7 @@ export default function DataEntryForm() {
   }, [activeTab, existingData, setFormData]);
 
   const handleInputChange = (field: keyof PoultryData, value: string) => {
-    const numValue = parseInt(value) || 0;
+    const numValue = parseFloat(value) || 0;
     setFormData({ [field]: numValue });
 
     // Clear error when user starts typing
@@ -126,6 +133,7 @@ export default function DataEntryForm() {
 
     setIsSaving(true);
     try {
+      // First save the raw data
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
       const dataToSave = {
@@ -134,20 +142,26 @@ export default function DataEntryForm() {
         ...formData,
       };
 
-      const { error } = await supabase
+      const { error: rawDataError } = await supabase
         .from('daily_poultry_data')
         .upsert(dataToSave, {
           onConflict: 'date,set_number',
         });
 
-      if (error) {
-        console.error('Error saving data:', error);
+      if (rawDataError) {
+        console.error('Error saving raw data:', rawDataError);
         alert('Error saving data. Please try again.');
-      } else {
-        alert('Data saved and ledger generated successfully!');
-        // Here you would implement the calculation logic
-        // For now, just show success message
+        return;
       }
+
+      // Then calculate and save the ledger data
+      const calculationResult = await calculateLedgerData(selectedDate, activeTab, formData);
+
+      await saveCalculatedData(calculationResult.calculatedData);
+
+      alert('Data saved and ledger generated successfully!');
+      window.location.reload(); // Refresh to show updated data
+
     } catch (error) {
       console.error('Error:', error);
       alert('Error saving data. Please try again.');
@@ -205,23 +219,51 @@ export default function DataEntryForm() {
           </div>
 
           {/* Form Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {Object.entries(FIELD_LABELS).map(([key, label]) => (
-              <div key={key} className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  {label}
-                </label>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleInputChange(key as keyof PoultryData, String((formData[key as keyof PoultryData] || 0) - 1))}
-                    className="w-10 h-10 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
-                  >
-                    <Minus className="h-4 w-4" />
-                  </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Object.entries(FIELD_LABELS).map(([key, label]) => {
+              // Handle vaaram field differently (text input)
+              if (key === 'vaaram') {
+                return (
+                  <div key={key} className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {label}
+                    </label>
+                    <input
+                      type="text"
+                      value={formData[key as keyof PoultryData] || ''}
+                      onChange={(e) => handleInputChange(key as keyof PoultryData, e.target.value)}
+                      className={`w-full p-3 border-2 rounded-lg focus:outline-none transition-colors ${
+                        errors[key]
+                          ? 'border-red-500 focus:border-red-500'
+                          : 'border-gray-300 focus:border-green-500'
+                      }`}
+                      placeholder="e.g., 27.6"
+                    />
+                    {errors[key] && (
+                      <p className="text-sm text-red-600">{errors[key]}</p>
+                    )}
+                  </div>
+                );
+              }
+
+              // Handle all other fields as number inputs
+              return (
+                <div key={key} className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {label}
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleInputChange(key as keyof PoultryData, String((formData[key as keyof PoultryData] || 0) - 0.01))}
+                      className="w-10 h-10 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
                   <input
                     type="number"
                     min="0"
+                    step="0.01"
                     value={formData[key as keyof PoultryData] || ''}
                     onChange={(e) => handleInputChange(key as keyof PoultryData, e.target.value)}
                     className={`flex-1 p-3 border-2 rounded-lg focus:outline-none transition-colors ${
@@ -231,19 +273,20 @@ export default function DataEntryForm() {
                     }`}
                     placeholder="0"
                   />
-                  <button
-                    type="button"
-                    onClick={() => handleInputChange(key as keyof PoultryData, String((formData[key as keyof PoultryData] || 0) + 1))}
-                    className="w-10 h-10 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => handleInputChange(key as keyof PoultryData, String((formData[key as keyof PoultryData] || 0) + 0.01))}
+                      className="w-10 h-10 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                  {errors[key] && (
+                    <p className="text-sm text-red-600">{errors[key]}</p>
+                  )}
                 </div>
-                {errors[key] && (
-                  <p className="text-sm text-red-600">{errors[key]}</p>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Action Buttons */}

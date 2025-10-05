@@ -4,10 +4,11 @@ import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, Plus, Edit } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Edit, Eye } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { supabase, SetNumberType } from '../lib/supabase';
 import { PoultryData } from '../types';
+import LedgerView from './LedgerView';
 
 export default function Calendar() {
   const {
@@ -21,6 +22,7 @@ export default function Calendar() {
   } = useStore();
 
   const [hasData, setHasData] = useState<Record<string, boolean>>({});
+  const [showLedger, setShowLedger] = useState(false);
 
   // Check for existing data when date changes
   useEffect(() => {
@@ -75,28 +77,30 @@ export default function Calendar() {
       const setNumbers: SetNumberType[] = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10'];
       setNumbers.forEach(set => {
         existingDataMap[set] = {
-          normal_eggs: 0,
-          double_eggs: 0,
-          small_eggs: 0,
+          iruppu_normal: 0,
+          iruppu_doubles: 0,
+          iruppu_small: 0,
           direct_sales: 0,
           sales_breakage: 0,
           set_breakage: 0,
           mortality: 0,
           culls_in: 0,
+          vaaram: '',
         };
       });
 
       // Fill in existing data
       data?.forEach((item) => {
         existingDataMap[item.set_number as SetNumberType] = {
-          normal_eggs: item.normal_eggs,
-          double_eggs: item.double_eggs,
-          small_eggs: item.small_eggs,
+          iruppu_normal: item.iruppu_normal,
+          iruppu_doubles: item.iruppu_doubles,
+          iruppu_small: item.iruppu_small,
           direct_sales: item.direct_sales,
           sales_breakage: item.sales_breakage,
           set_breakage: item.set_breakage,
           mortality: item.mortality,
           culls_in: item.culls_in,
+          vaaram: item.vaaram,
         };
       });
 
@@ -124,17 +128,33 @@ export default function Calendar() {
       setShowForm(true);
       // Reset form data for new entry
       setFormData({
-        normal_eggs: 0,
-        double_eggs: 0,
-        small_eggs: 0,
+        iruppu_normal: 0,
+        iruppu_doubles: 0,
+        iruppu_small: 0,
         direct_sales: 0,
         sales_breakage: 0,
         set_breakage: 0,
         mortality: 0,
         culls_in: 0,
+        vaaram: '',
       });
     }
   };
+
+  const handleViewLedger = () => {
+    if (selectedDate) {
+      setShowLedger(true);
+    }
+  };
+
+  const handleBackFromLedger = () => {
+    setShowLedger(false);
+  };
+
+  // Show ledger view if requested
+  if (showLedger && selectedDate) {
+    return <LedgerView date={selectedDate} onBack={handleBackFromLedger} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
@@ -183,13 +203,25 @@ export default function Calendar() {
                   ))}
                 </div>
 
-                <button
-                  onClick={handleNewEntry}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto"
-                >
-                  <Plus className="h-5 w-5" />
-                  Add/Edit Data
-                </button>
+                <div className="flex gap-3 justify-center">
+                  <button
+                    onClick={handleNewEntry}
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
+                  >
+                    <Plus className="h-5 w-5" />
+                    Add/Edit Data
+                  </button>
+
+                  {Object.values(hasData).some(exists => exists) && (
+                    <button
+                      onClick={handleViewLedger}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
+                    >
+                      <Eye className="h-5 w-5" />
+                      View Ledger
+                    </button>
+                  )}
+                </div>
               </div>
             )}
           </div>
