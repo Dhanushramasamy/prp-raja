@@ -96,7 +96,11 @@ export default function LedgerView({ date, onBack }: LedgerViewProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={onBack}
+                onClick={() => {
+                  onBack();
+                  // Also refresh calculated data when going back
+                  window.location.reload();
+                }}
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 <ArrowLeft className="h-5 w-5" />

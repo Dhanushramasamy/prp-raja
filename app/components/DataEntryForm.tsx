@@ -43,6 +43,7 @@ export default function DataEntryForm() {
     setShowForm,
     setIsSaving,
     isSaving,
+    setSelectedDate,
   } = useStore();
 
   const [activeTab, setActiveTab] = useState<SetNumberType>('B1');
@@ -57,14 +58,15 @@ export default function DataEntryForm() {
     } else {
       // Reset to default values for new entry
       setFormData({
-        normal_eggs: 0,
-        double_eggs: 0,
-        small_eggs: 0,
+        iruppu_normal: 0,
+        iruppu_doubles: 0,
+        iruppu_small: 0,
         direct_sales: 0,
         sales_breakage: 0,
         set_breakage: 0,
         mortality: 0,
         culls_in: 0,
+        vaaram: '',
       });
     }
   }, [activeTab, existingData, setFormData]);
@@ -82,9 +84,10 @@ export default function DataEntryForm() {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Basic validation - ensure non-negative numbers
+    // Basic validation - ensure non-negative numbers (skip vaaram which is a string)
     Object.keys(formData).forEach(key => {
-      if (formData[key as keyof PoultryData] < 0) {
+      const value = formData[key as keyof PoultryData];
+      if (key !== 'vaaram' && typeof value === 'number' && value < 0) {
         newErrors[key] = 'Cannot be negative';
       }
     });
@@ -160,7 +163,13 @@ export default function DataEntryForm() {
       await saveCalculatedData(calculationResult.calculatedData);
 
       alert('Data saved and ledger generated successfully!');
-      window.location.reload(); // Refresh to show updated data
+
+      // Automatically redirect to ledger view
+      setShowForm(false);
+      // Refresh the calendar to show updated calculated data status
+      if (selectedDate) {
+        setSelectedDate(new Date(selectedDate));
+      }
 
     } catch (error) {
       console.error('Error:', error);
@@ -182,7 +191,13 @@ export default function DataEntryForm() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => setShowForm(false)}
+                onClick={() => {
+                  setShowForm(false);
+                  // Refresh the calendar's calculated data status
+                  if (selectedDate) {
+                    setSelectedDate(new Date(selectedDate));
+                  }
+                }}
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 <ArrowLeft className="h-5 w-5" />
@@ -253,13 +268,18 @@ export default function DataEntryForm() {
                     {label}
                   </label>
                   <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleInputChange(key as keyof PoultryData, String((formData[key as keyof PoultryData] || 0) - 0.01))}
-                      className="w-10 h-10 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const currentValue = formData[key as keyof PoultryData];
+                      if (typeof currentValue === 'number') {
+                        handleInputChange(key as keyof PoultryData, String(currentValue - 0.01));
+                      }
+                    }}
+                    className="w-10 h-10 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </button>
                   <input
                     type="number"
                     min="0"
@@ -275,7 +295,12 @@ export default function DataEntryForm() {
                   />
                     <button
                       type="button"
-                      onClick={() => handleInputChange(key as keyof PoultryData, String((formData[key as keyof PoultryData] || 0) + 0.01))}
+                      onClick={() => {
+                        const currentValue = formData[key as keyof PoultryData];
+                        if (typeof currentValue === 'number') {
+                          handleInputChange(key as keyof PoultryData, String(currentValue + 0.01));
+                        }
+                      }}
                       className="w-10 h-10 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
                     >
                       <Plus className="h-4 w-4" />
@@ -314,7 +339,7 @@ export default function DataEntryForm() {
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <h3 className="font-medium text-gray-800 mb-2">Current Entry Summary:</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-              <div>Total Eggs: <span className="font-semibold">{formData.normal_eggs + formData.double_eggs + formData.small_eggs}</span></div>
+              <div>Total Stock: <span className="font-semibold">{formData.iruppu_normal + formData.iruppu_doubles + formData.iruppu_small}</span></div>
               <div>Direct Sales: <span className="font-semibold">{formData.direct_sales}</span></div>
               <div>Total Loss: <span className="font-semibold">{formData.sales_breakage + formData.set_breakage + formData.mortality}</span></div>
               <div>Culls In: <span className="font-semibold">{formData.culls_in}</span></div>

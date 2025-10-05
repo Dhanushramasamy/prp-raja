@@ -47,7 +47,7 @@ export async function calculateLedgerData(
     iruppu_normal: previousRawData?.iruppu_normal || 0,
     iruppu_doubles: previousRawData?.iruppu_doubles || 0,
     iruppu_small: previousRawData?.iruppu_small || 0,
-  };
+  } as const;
 
   // Calculate all fields
   const calculatedData: CalculatedLedger = {
@@ -109,17 +109,17 @@ export async function calculateLedgerData(
 }
 
 // Individual calculation functions
-function calculateNormalProduction(current: PoultryData, previous: any): number {
+function calculateNormalProduction(current: PoultryData, previous: { iruppu_normal: number }): number {
   const totalLosses = current.direct_sales + current.sales_breakage + current.set_breakage;
   return current.iruppu_normal + totalLosses - previous.iruppu_normal;
 }
 
-function calculateDoubleProduction(current: PoultryData, previous: any): number {
+function calculateDoubleProduction(current: PoultryData, previous: { iruppu_doubles: number }): number {
   const totalLosses = current.direct_sales + current.sales_breakage + current.set_breakage;
   return current.iruppu_doubles + totalLosses - previous.iruppu_doubles;
 }
 
-function calculateSmallProduction(current: PoultryData, previous: any): number {
+function calculateSmallProduction(current: PoultryData, previous: { iruppu_small: number }): number {
   const totalLosses = current.direct_sales + current.sales_breakage + current.set_breakage;
   return current.iruppu_small + totalLosses - previous.iruppu_small;
 }
@@ -130,7 +130,7 @@ function calculateProductionPercentage(totalProduction: number, previousEndingCh
   return Math.round(percentage * 100) / 100; // Round to 2 decimal places
 }
 
-function calculateEndingChickens(current: PoultryData, previous: any): number {
+function calculateEndingChickens(current: PoultryData, previous: { ending_chickens: number }): number {
   return previous.ending_chickens - current.mortality + current.culls_in;
 }
 

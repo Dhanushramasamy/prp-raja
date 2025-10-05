@@ -14,6 +14,7 @@ export default function Calendar() {
   const {
     selectedDate,
     setSelectedDate,
+    showForm,
     setShowForm,
     setExistingData,
     setFormData,
@@ -22,7 +23,8 @@ export default function Calendar() {
   } = useStore();
 
   const [hasData, setHasData] = useState<Record<string, boolean>>({});
-  const [showLedger, setShowLedger] = useState(false);
+  const [hasCalculatedData, setHasCalculatedData] = useState<Record<string, boolean>>({});
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Check for existing data when date changes
   useEffect(() => {
@@ -30,6 +32,21 @@ export default function Calendar() {
       checkExistingData(selectedDate);
     }
   }, [selectedDate]);
+
+  // Check for calculated data when component mounts or when we need to refresh
+  useEffect(() => {
+    if (selectedDate) {
+      checkCalculatedData(selectedDate);
+    }
+  }, [selectedDate, refreshTrigger]);
+
+  // Auto-show ledger when calculated data becomes available
+  useEffect(() => {
+    if (selectedDate && Object.values(hasCalculatedData).some(exists => exists) && !showForm) {
+      // Ledger should be shown when showForm is false and calculated data exists
+      // This is handled by the conditional rendering below
+    }
+  }, [hasCalculatedData, selectedDate, showForm]);
 
   const checkExistingData = async (date: Date) => {
     setIsLoading(true);
@@ -54,6 +71,29 @@ export default function Calendar() {
       console.error('Error:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const checkCalculatedData = async (date: Date) => {
+    try {
+      const dateStr = format(date, 'yyyy-MM-dd');
+      const { data, error } = await supabase
+        .from('calculated_ledger')
+        .select('set_number')
+        .eq('date', dateStr);
+
+      if (error) {
+        console.error('Error fetching calculated data:', error);
+        return;
+      }
+
+      const calculatedSets: Record<string, boolean> = {};
+      data?.forEach((item) => {
+        calculatedSets[item.set_number] = true;
+      });
+      setHasCalculatedData(calculatedSets);
+    } catch (error) {
+      console.error('Error:', error);
     }
   };
 
@@ -117,10 +157,25 @@ export default function Calendar() {
     setSelectedDate(date);
     if (date) {
       loadExistingData(date);
+
+      // Check if we should show ledger automatically
+      checkCalculatedData(date).then(() => {
+        // If any calculated data exists, show ledger
+        if (Object.values(hasCalculatedData).some(exists => exists)) {
+          setShowForm(false);
+        } else {
+          setShowForm(true);
+        }
+      });
     } else {
       setShowForm(false);
       setExistingData({} as Record<SetNumberType, PoultryData>);
     }
+  };
+
+  // Function to refresh calculated data status
+  const refreshCalculatedData = () => {
+    setRefreshTrigger(prev => prev + 1);
   };
 
   const handleNewEntry = () => {
@@ -138,22 +193,31 @@ export default function Calendar() {
         culls_in: 0,
         vaaram: '',
       });
+
+      // Set a timeout to check for calculated data after form interaction
+      setTimeout(() => {
+        refreshCalculatedData();
+      }, 100);
     }
   };
 
   const handleViewLedger = () => {
     if (selectedDate) {
-      setShowLedger(true);
+      setShowForm(false);
     }
   };
 
   const handleBackFromLedger = () => {
-    setShowLedger(false);
+    setShowForm(true);
+    // Refresh calculated data status when returning from ledger
+    if (selectedDate) {
+      checkCalculatedData(selectedDate);
+    }
   };
 
-  // Show ledger view if requested
-  if (showLedger && selectedDate) {
-    return <LedgerView date={selectedDate} onBack={handleBackFromLedger} />;
+  // Show ledger view if form is not showing and calculated data exists
+  if (!showForm && selectedDate && Object.values(hasCalculatedData).some(exists => exists)) {
+    return <LedgerView date={selectedDate} onBack={() => setShowForm(true)} />;
   }
 
   return (
@@ -189,7 +253,7 @@ export default function Calendar() {
 
                 {/* Show existing data status */}
                 <div className="flex flex-wrap gap-2 justify-center mb-4">
-                  {Object.entries(hasData).map(([set, exists]) => (
+                  {Object.entries(hasCalculatedData).map(([set, exists]) => (
                     <div
                       key={set}
                       className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -198,7 +262,7 @@ export default function Calendar() {
                           : 'bg-gray-100 text-gray-600'
                       }`}
                     >
-                      {set} {exists ? <Edit className="inline h-3 w-3 ml-1" /> : <Plus className="inline h-3 w-3 ml-1" />}
+                      {set} {exists ? <Eye className="inline h-3 w-3 ml-1" /> : <Plus className="inline h-3 w-3 ml-1" />}
                     </div>
                   ))}
                 </div>
@@ -212,7 +276,7 @@ export default function Calendar() {
                     Add/Edit Data
                   </button>
 
-                  {Object.values(hasData).some(exists => exists) && (
+                  {Object.values(hasCalculatedData).some(exists => exists) && (
                     <button
                       onClick={handleViewLedger}
                       className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
