@@ -1,0 +1,74 @@
+import { create } from 'zustand';
+import { SetNumberType, PoultryData, CalculatedLedger } from '../types';
+
+interface Store {
+  // Calendar state
+  selectedDate: Date | null;
+  setSelectedDate: (date: Date | null) => void;
+
+  // Data entry state
+  selectedSet: SetNumberType;
+  setSelectedSet: (set: SetNumberType) => void;
+
+  // Form data
+  formData: PoultryData;
+  setFormData: (data: Partial<PoultryData>) => void;
+  resetFormData: () => void;
+
+  // Existing data for selected date
+  existingData: Record<SetNumberType, PoultryData>;
+  setExistingData: (data: Record<SetNumberType, PoultryData>) => void;
+
+  // UI state
+  showForm: boolean;
+  setShowForm: (show: boolean) => void;
+
+  // Loading states
+  isLoading: boolean;
+  setIsLoading: (loading: boolean) => void;
+  isSaving: boolean;
+  setIsSaving: (saving: boolean) => void;
+}
+
+const initialFormData: PoultryData = {
+  normal_eggs: 0,
+  double_eggs: 0,
+  small_eggs: 0,
+  direct_sales: 0,
+  sales_breakage: 0,
+  set_breakage: 0,
+  mortality: 0,
+  culls_in: 0,
+};
+
+export const useStore = create<Store>((set, get) => ({
+  // Calendar state
+  selectedDate: null,
+  setSelectedDate: (date) => set({ selectedDate: date }),
+
+  // Data entry state
+  selectedSet: 'B1',
+  setSelectedSet: (setNumber) => set({ selectedSet: setNumber }),
+
+  // Form data
+  formData: initialFormData,
+  setFormData: (data) =>
+    set((state) => ({
+      formData: { ...state.formData, ...data },
+    })),
+  resetFormData: () => set({ formData: initialFormData }),
+
+  // Existing data for selected date
+  existingData: {} as Record<SetNumberType, PoultryData>,
+  setExistingData: (data) => set({ existingData: data }),
+
+  // UI state
+  showForm: false,
+  setShowForm: (show) => set({ showForm: show }),
+
+  // Loading states
+  isLoading: false,
+  setIsLoading: (loading) => set({ isLoading: loading }),
+  isSaving: false,
+  setIsSaving: (saving) => set({ isSaving: saving }),
+}));
