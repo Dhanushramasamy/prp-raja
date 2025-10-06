@@ -54,18 +54,20 @@ export default function Home() {
             </nav>
 
             {/* Mobile Tab Selector */}
-            <div className="md:hidden">
-              <select
-                value={activeTab}
-                onChange={(e) => setActiveTab(e.target.value as TabType)}
-                className="block w-full pl-3 pr-10 py-2.5 text-base bg-white/95 backdrop-blur-sm border-2 border-white rounded-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-white text-sm font-medium"
-              >
-                {tabs.map((tab) => (
-                  <option key={tab.id} value={tab.id}>
-                    {tab.label}
-                  </option>
-                ))}
-              </select>
+            <div className="md:hidden flex gap-2">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
+                    activeTab === tab.id
+                      ? 'bg-white text-emerald-700 shadow-lg'
+                      : 'bg-white/20 text-white backdrop-blur-sm'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
           </div>
         </div>

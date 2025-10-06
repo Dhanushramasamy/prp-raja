@@ -240,7 +240,7 @@ export default function LedgersView() {
                           {ledger.set_number}
                         </td>
                         <td className="px-6 py-4 whitespace-normal break-words text-gray-900 max-w-[140px]">
-                          {ledger.vaaram && <span className="text-blue-600 font-medium">{ledger.vaaram} (virpanaiyalar)</span>}
+                          {ledger.vaaram && <span className="text-blue-600 font-medium">{ledger.vaaram}</span>}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-gray-900">
                           <div>
@@ -402,7 +402,7 @@ export default function LedgersView() {
                       <div className="text-sm sm:text-base font-medium">{selectedLedger.set_number}</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-medium text-gray-700">வாரம் (virpanaiyalar)</div>
+                      <div className="font-medium text-gray-700">வாரம்</div>
                       <div className="text-sm sm:text-base font-medium text-blue-600">{selectedLedger.vaaram}</div>
                     </div>
                   </div>
