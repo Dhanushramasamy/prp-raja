@@ -222,7 +222,7 @@ export default function LedgersView() {
 
               {/* Entries Table */}
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
+                <table className="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Set</th>
@@ -239,10 +239,10 @@ export default function LedgersView() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {ledger.set_number}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-normal break-words text-gray-900 max-w-[140px]">
                           {ledger.vaaram && <span className="text-blue-600 font-medium">{ledger.vaaram} (virpanaiyalar)</span>}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-900">
                           <div>
                             <div>Total: {ledger.total_production}</div>
                             <div className="text-xs text-gray-500">
@@ -250,14 +250,14 @@ export default function LedgersView() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-900">
                           <div>
                             <div>Sales: {ledger.direct_sales}</div>
                             <div>Breakage: {ledger.sales_breakage + ledger.set_breakage}</div>
                             <div>Mortality: {ledger.mortality_count}</div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-900">
                           <div>
                             <div>Open: {ledger.opening_stock}</div>
                             <div className="font-medium">Close: {ledger.closing_stock}</div>
@@ -283,9 +283,9 @@ export default function LedgersView() {
 
       {/* Detailed Ledger View Modal */}
       {selectedLedger && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-4 z-50">
+          <div className="bg-white rounded-lg w-full max-w-6xl max-h-[95vh] overflow-hidden">
+            <div className="p-3 sm:p-6">
               {/* Header */}
               <div className="flex justify-between items-center mb-6">
                 <div>
@@ -305,105 +305,105 @@ export default function LedgersView() {
               </div>
 
               {/* Template Sheet Order - Left to Right */}
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:gap-4">
                 {/* Row 1: Basic Info */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="grid grid-cols-9 gap-4 text-sm">
+                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                  <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm">
                     <div className="text-center">
                       <div className="font-medium text-gray-700">Set</div>
-                      <div className="text-lg font-bold">{selectedLedger.set_number}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.set_number}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">ஆரம்ப கோழி</div>
-                      <div className="text-lg font-bold">{selectedLedger.starting_chickens}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.starting_chickens}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">ஆரம்ப முட்டை</div>
-                      <div className="text-lg font-bold">{selectedLedger.starting_eggs}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.starting_eggs}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">சாதாரண உற்பத்தி</div>
-                      <div className="text-lg font-bold">{selectedLedger.normal_production}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.normal_production}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">இரட்டை உற்பத்தி</div>
-                      <div className="text-lg font-bold">{selectedLedger.double_production}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.double_production}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">சிறிய உற்பத்தி</div>
-                      <div className="text-lg font-bold">{selectedLedger.small_production}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.small_production}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">மொத்த உற்பத்தி</div>
-                      <div className="text-lg font-bold">{selectedLedger.total_production}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.total_production}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">உற்பத்தி %</div>
-                      <div className="text-lg font-bold">{selectedLedger.production_percentage}%</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.production_percentage}%</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">உற்பத்தி வித்தியாசம்</div>
-                      <div className="text-lg font-bold">{selectedLedger.production_difference > 0 ? '+' : ''}{selectedLedger.production_difference}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.production_difference > 0 ? '+' : ''}{selectedLedger.production_difference}</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Row 2: Sales & Losses */}
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="grid grid-cols-9 gap-4 text-sm">
+                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                  <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm">
                     <div className="text-center">
                       <div className="font-medium text-gray-700">எணிக்கை</div>
-                      <div className="text-lg font-bold">{selectedLedger.direct_sales}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.direct_sales}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">விற்பனை உடைவு</div>
-                      <div className="text-lg font-bold">{selectedLedger.sales_breakage}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.sales_breakage}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">செட் உடைவு</div>
-                      <div className="text-lg font-bold">{selectedLedger.set_breakage}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.set_breakage}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">இறப்பு</div>
-                      <div className="text-lg font-bold">{selectedLedger.mortality_count}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.mortality_count}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">கல்லுகள்</div>
-                      <div className="text-lg font-bold">{selectedLedger.culls_count}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.culls_count}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">முடிவு கோழி</div>
-                      <div className="text-lg font-bold">{selectedLedger.ending_chickens}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.ending_chickens}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">தொடக்க இருப்பு</div>
-                      <div className="text-lg font-bold">{selectedLedger.opening_stock}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.opening_stock}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">முடிவு இருப்பு</div>
-                      <div className="text-lg font-bold">{selectedLedger.closing_stock}</div>
+                      <div className="text-base sm:text-lg font-bold">{selectedLedger.closing_stock}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">வாரம்</div>
-                      <div className="text-lg font-bold text-blue-600">{selectedLedger.vaaram}</div>
+                      <div className="text-base sm:text-lg font-bold text-blue-600">{selectedLedger.vaaram}</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Additional Details */}
-                <div className="bg-blue-50 rounded-lg p-4">
-                  <div className="grid grid-cols-3 gap-4 text-sm">
+                <div className="bg-blue-50 rounded-lg p-3 sm:p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
                     <div className="text-center">
                       <div className="font-medium text-gray-700">Date</div>
-                      <div className="text-base font-medium">{format(new Date(selectedLedger.date), 'dd/MM/yyyy')}</div>
+                      <div className="text-sm sm:text-base font-medium">{format(new Date(selectedLedger.date), 'dd/MM/yyyy')}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">Set Number</div>
-                      <div className="text-base font-medium">{selectedLedger.set_number}</div>
+                      <div className="text-sm sm:text-base font-medium">{selectedLedger.set_number}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-medium text-gray-700">வாரம் (virpanaiyalar)</div>
-                      <div className="text-base font-medium text-blue-600">{selectedLedger.vaaram}</div>
+                      <div className="text-sm sm:text-base font-medium text-blue-600">{selectedLedger.vaaram}</div>
                     </div>
                   </div>
                 </div>

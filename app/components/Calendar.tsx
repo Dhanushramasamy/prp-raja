@@ -228,13 +228,13 @@ export default function CalendarView() {
               selected={selectedDate}
               onChange={handleDateSelect}
               dateFormat="dd/MM/yyyy"
-              className="w-full max-w-xs p-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none text-lg"
+              className="w-full max-w-xs p-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none text-base sm:text-lg"
               placeholderText="Select a date"
             />
 
             {selectedDate && (
               <div className="text-center">
-                <p className="text-lg text-gray-700 mb-2">
+                <p className="text-base sm:text-lg text-gray-700 mb-2">
                   Selected: <span className="font-semibold">{format(selectedDate, 'dd/MM/yyyy')}</span>
                 </p>
 
