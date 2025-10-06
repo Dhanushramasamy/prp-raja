@@ -183,13 +183,11 @@ export default function DataEntryForm() {
         <div className="flex items-center justify-between flex-wrap gap-4">
           <button
             onClick={() => {
+              console.log('Back to Calendar clicked');
               setShowForm(false);
-              // Refresh the calendar's calculated data status
-              if (selectedDate) {
-                setSelectedDate(new Date(selectedDate));
-              }
             }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-all font-medium"
+            type="button"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-all font-medium cursor-pointer"
           >
             <ArrowLeft className="h-5 w-5" />
             Back to Calendar
