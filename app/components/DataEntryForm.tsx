@@ -158,14 +158,10 @@ export default function DataEntryForm() {
 
       await saveCalculatedData(calculationResult.calculatedData);
 
-      alert('Data saved and ledger generated successfully!');
+          alert('Data saved and ledger generated successfully!');
 
-      // Automatically redirect to ledger view
-      setShowForm(false);
-      // Refresh the calendar to show updated calculated data status
-      if (selectedDate) {
-        setSelectedDate(new Date(selectedDate));
-      }
+          // Stay on the form for potential additional entries
+          // Users can navigate to Ledgers tab to view all data
 
     } catch (error) {
       console.error('Error:', error);

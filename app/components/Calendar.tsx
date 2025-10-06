@@ -4,13 +4,13 @@ import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, Plus, Edit, Eye } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Edit } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { supabase, SetNumberType } from '../lib/supabase';
 import { PoultryData } from '../types';
-import LedgerView from './LedgerView';
+import DataEntryForm from './DataEntryForm';
 
-export default function Calendar() {
+export default function CalendarView() {
   const {
     selectedDate,
     setSelectedDate,
@@ -40,11 +40,10 @@ export default function Calendar() {
     }
   }, [selectedDate, refreshTrigger]);
 
-  // Auto-show ledger when calculated data becomes available
+  // Auto-show form when calculated data exists (for editing existing data)
   useEffect(() => {
     if (selectedDate && Object.values(hasCalculatedData).some(exists => exists) && !showForm) {
-      // Ledger should be shown when showForm is false and calculated data exists
-      // This is handled by the conditional rendering below
+      setShowForm(true);
     }
   }, [hasCalculatedData, selectedDate, showForm]);
 
@@ -201,23 +200,11 @@ export default function Calendar() {
     }
   };
 
-  const handleViewLedger = () => {
-    if (selectedDate) {
-      setShowForm(false);
-    }
-  };
 
-  const handleBackFromLedger = () => {
-    setShowForm(true);
-    // Refresh calculated data status when returning from ledger
-    if (selectedDate) {
-      checkCalculatedData(selectedDate);
-    }
-  };
 
-  // Show ledger view if form is not showing and calculated data exists
-  if (!showForm && selectedDate && Object.values(hasCalculatedData).some(exists => exists)) {
-    return <LedgerView date={selectedDate} onBack={() => setShowForm(true)} />;
+  // If form is showing, render DataEntryForm, otherwise show calendar
+  if (showForm) {
+    return <DataEntryForm />;
   }
 
   return (
@@ -262,7 +249,7 @@ export default function Calendar() {
                           : 'bg-gray-100 text-gray-600'
                       }`}
                     >
-                      {set} {exists ? <Eye className="inline h-3 w-3 ml-1" /> : <Plus className="inline h-3 w-3 ml-1" />}
+                      {set} {exists ? <Edit className="inline h-3 w-3 ml-1" /> : <Plus className="inline h-3 w-3 ml-1" />}
                     </div>
                   ))}
                 </div>
@@ -276,15 +263,6 @@ export default function Calendar() {
                     Add/Edit Data
                   </button>
 
-                  {Object.values(hasCalculatedData).some(exists => exists) && (
-                    <button
-                      onClick={handleViewLedger}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
-                    >
-                      <Eye className="h-5 w-5" />
-                      View Ledger
-                    </button>
-                  )}
                 </div>
               </div>
             )}
