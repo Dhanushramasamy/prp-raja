@@ -208,16 +208,16 @@ export default function CalendarView() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
+    <div className="min-h-screen p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 card p-6">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">PRP-Raja</h1>
           <p className="text-lg text-gray-600">Poultry Farm Management System</p>
         </div>
 
         {/* Calendar Section */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="card p-6 mb-6">
           <div className="flex items-center gap-3 mb-4">
             <CalendarIcon className="h-6 w-6 text-green-600" />
             <h2 className="text-xl font-semibold text-gray-800">Select Date</h2>
@@ -271,7 +271,7 @@ export default function CalendarView() {
 
         {/* Loading indicator */}
         {isLoading && (
-          <div className="text-center py-4">
+          <div className="text-center py-4 card p-4">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
             <p className="mt-2 text-gray-600">Loading data...</p>
           </div>
