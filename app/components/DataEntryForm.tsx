@@ -27,9 +27,6 @@ const FIELD_LABELS = {
   set_breakage: 'Set Udaivu (செட் உடைவு)',
   mortality: 'Irappu (இறப்பு) - Mortality',
   culls_in: 'Culls (கல்லுகள்)',
-
-  // Week field
-  vaaram: 'Vaaram (வாரம்) - Week (e.g., 27.6)',
 };
 
 export default function DataEntryForm() {
@@ -66,7 +63,6 @@ export default function DataEntryForm() {
         set_breakage: 0,
         mortality: 0,
         culls_in: 0,
-        vaaram: '',
       });
     }
   }, [activeTab, existingData, setFormData]);
@@ -236,32 +232,7 @@ export default function DataEntryForm() {
           {/* Form Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(FIELD_LABELS).map(([key, label]) => {
-              // Handle vaaram field differently (text input)
-              if (key === 'vaaram') {
-                return (
-                  <div key={key} className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      {label}
-                    </label>
-                    <input
-                      type="text"
-                      value={formData[key as keyof PoultryData] || ''}
-                      onChange={(e) => handleInputChange(key as keyof PoultryData, e.target.value)}
-                      className={`w-full p-3 border-2 rounded-lg focus:outline-none transition-colors ${
-                        errors[key]
-                          ? 'border-red-500 focus:border-red-500'
-                          : 'border-gray-300 focus:border-green-500'
-                      }`}
-                      placeholder="e.g., 27.6"
-                    />
-                    {errors[key] && (
-                      <p className="text-sm text-red-600">{errors[key]}</p>
-                    )}
-                  </div>
-                );
-              }
-
-              // Handle all other fields as number inputs
+              // Handle all fields as number inputs
               return (
                 <div key={key} className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">
