@@ -209,44 +209,42 @@ export default function CalendarView() {
 
   return (
     <div className="min-h-screen p-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8 card p-6">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">PRP-Raja</h1>
-          <p className="text-lg text-gray-600">Poultry Farm Management System</p>
-        </div>
-
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Calendar Section */}
-        <div className="card p-6 mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <CalendarIcon className="h-6 w-6 text-green-600" />
-            <h2 className="text-xl font-semibold text-gray-800">Select Date</h2>
+        <div className="card p-8 animate-fade-in">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
+              <CalendarIcon className="h-6 w-6 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">Select Date</h2>
           </div>
 
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-6">
             <DatePicker
               selected={selectedDate}
               onChange={handleDateSelect}
               dateFormat="dd/MM/yyyy"
-              className="w-full max-w-xs p-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none text-base sm:text-lg text-black"
+              className="w-full max-w-xs p-4 border-2 border-emerald-300 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 focus:outline-none text-base sm:text-lg text-black font-semibold shadow-sm transition-all"
               placeholderText="Select a date"
             />
 
             {selectedDate && (
-              <div className="text-center">
-                <p className="text-base sm:text-lg text-gray-700 mb-2">
-                  Selected: <span className="font-semibold">{format(selectedDate, 'dd/MM/yyyy')}</span>
-                </p>
+              <div className="text-center w-full animate-fade-in">
+                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 mb-4 border border-emerald-200">
+                  <p className="text-base sm:text-lg text-gray-800 font-medium">
+                    Selected: <span className="font-bold text-emerald-700">{format(selectedDate, 'dd/MM/yyyy')}</span>
+                  </p>
+                </div>
 
                 {/* Show existing data status */}
-                <div className="flex flex-wrap gap-2 justify-center mb-4">
+                <div className="flex flex-wrap gap-2 justify-center mb-6">
                   {Object.entries(hasCalculatedData).map(([set, exists]) => (
                     <div
                       key={set}
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all transform hover:scale-105 ${
                         exists
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-600'
+                          ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
                     >
                       {set} {exists ? <Edit className="inline h-3 w-3 ml-1" /> : <Plus className="inline h-3 w-3 ml-1" />}
@@ -254,16 +252,13 @@ export default function CalendarView() {
                   ))}
                 </div>
 
-                <div className="flex gap-3 justify-center">
-                  <button
-                    onClick={handleNewEntry}
-                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
-                  >
-                    <Plus className="h-5 w-5" />
-                    Add/Edit Data
-                  </button>
-
-                </div>
+                <button
+                  onClick={handleNewEntry}
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3 mx-auto"
+                >
+                  <Plus className="h-6 w-6" />
+                  Add/Edit Data
+                </button>
               </div>
             )}
           </div>
@@ -271,9 +266,9 @@ export default function CalendarView() {
 
         {/* Loading indicator */}
         {isLoading && (
-          <div className="text-center py-4 card p-4">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-            <p className="mt-2 text-gray-600">Loading data...</p>
+          <div className="text-center py-8 card p-6 animate-fade-in">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-200 border-t-emerald-600"></div>
+            <p className="mt-4 text-gray-800 font-medium text-lg">Loading data...</p>
           </div>
         )}
       </div>

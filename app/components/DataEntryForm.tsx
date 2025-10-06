@@ -178,52 +178,50 @@ export default function DataEntryForm() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => {
-                  setShowForm(false);
-                  // Refresh the calendar's calculated data status
-                  if (selectedDate) {
-                    setSelectedDate(new Date(selectedDate));
-                  }
-                }}
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
-              >
-                <ArrowLeft className="h-5 w-5" />
-                Back to Calendar
-              </button>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">
-                  Data Entry - {format(selectedDate, 'dd/MM/yyyy')}
-                </h1>
-                <p className="text-gray-600">Enter poultry data for each set</p>
-              </div>
-            </div>
+      {/* Header */}
+      <div className="card p-6 mb-6 animate-fade-in">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <button
+            onClick={() => {
+              setShowForm(false);
+              // Refresh the calendar's calculated data status
+              if (selectedDate) {
+                setSelectedDate(new Date(selectedDate));
+              }
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-all font-medium"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            Back to Calendar
+          </button>
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              Data Entry - {format(selectedDate, 'dd/MM/yyyy')}
+            </h1>
+            <p className="text-gray-600 font-medium">Enter poultry data for each set</p>
           </div>
         </div>
+      </div>
 
-        {/* Set Selection Tabs */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <div className="flex flex-wrap gap-2 mb-4">
-            {setNumbers.map((set) => (
-              <button
-                key={set}
-                onClick={() => setActiveTab(set)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  activeTab === set
-                    ? 'bg-green-600 text-white'
-                    : existingData[set] && Object.values(existingData[set]).some(v => v > 0)
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {set} {existingData[set] && Object.values(existingData[set]).some(v => v > 0) && <Plus className="inline h-3 w-3 ml-1" />}
-              </button>
-            ))}
-          </div>
+      {/* Set Selection Tabs */}
+      <div className="card p-6 mb-6 animate-fade-in">
+        <div className="flex flex-wrap gap-3 mb-6">
+          {setNumbers.map((set) => (
+            <button
+              key={set}
+              onClick={() => setActiveTab(set)}
+              className={`px-5 py-2.5 rounded-xl font-semibold transition-all transform hover:scale-105 ${
+                activeTab === set
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg'
+                  : existingData[set] && Object.values(existingData[set]).some(v => v > 0)
+                  ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {set} {existingData[set] && Object.values(existingData[set]).some(v => v > 0) && <Plus className="inline h-3 w-3 ml-1" />}
+            </button>
+          ))}
+        </div>
 
           {/* Form Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -231,7 +229,7 @@ export default function DataEntryForm() {
               // Handle all fields as number inputs
               return (
                 <div key={key} className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-bold text-gray-800">
                     {label}
                   </label>
                   <div className="flex items-center gap-2">
@@ -243,9 +241,9 @@ export default function DataEntryForm() {
                         handleInputChange(key as keyof PoultryData, String(currentValue - 0.01));
                       }
                     }}
-                    className="w-10 h-10 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                    className="w-11 h-11 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 flex items-center justify-center shadow-sm transition-all transform hover:scale-105"
                   >
-                    <Minus className="h-4 w-4" />
+                    <Minus className="h-5 w-5" />
                   </button>
                   <input
                     type="number"
@@ -253,10 +251,10 @@ export default function DataEntryForm() {
                     step="0.01"
                     value={formData[key as keyof PoultryData] || ''}
                     onChange={(e) => handleInputChange(key as keyof PoultryData, e.target.value)}
-                    className={`flex-1 p-3 border-2 rounded-lg focus:outline-none transition-colors ${
+                    className={`flex-1 p-3 border-2 rounded-xl focus:outline-none focus:ring-4 transition-all font-semibold text-base ${
                       errors[key]
-                        ? 'border-red-500 focus:border-red-500'
-                        : 'border-gray-300 focus:border-green-500'
+                        ? 'border-red-500 focus:border-red-500 focus:ring-red-100'
+                        : 'border-emerald-300 focus:border-emerald-500 focus:ring-emerald-100'
                     }`}
                     placeholder="0"
                   />
@@ -268,50 +266,62 @@ export default function DataEntryForm() {
                           handleInputChange(key as keyof PoultryData, String(currentValue + 0.01));
                         }
                       }}
-                      className="w-10 h-10 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                      className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 flex items-center justify-center shadow-md transition-all transform hover:scale-105"
                     >
-                      <Plus className="h-4 w-4" />
+                      <Plus className="h-5 w-5 text-white" />
                     </button>
                   </div>
                   {errors[key] && (
-                    <p className="text-sm text-red-600">{errors[key]}</p>
+                    <p className="text-sm text-red-600 font-medium">{errors[key]}</p>
                   )}
                 </div>
               );
             })}
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t">
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-            >
-              <Save className="h-5 w-5" />
-              {isSaving ? 'Saving...' : 'Save Data'}
-            </button>
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t-2 border-emerald-100">
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-blue-300 disabled:to-blue-400 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
+          >
+            <Save className="h-6 w-6" />
+            {isSaving ? 'Saving...' : 'Save Data'}
+          </button>
 
-            <button
-              onClick={handleGenerate}
-              disabled={isSaving}
-              className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-            >
-              <Calculator className="h-5 w-5" />
-              {isSaving ? 'Generating...' : 'Save & Generate Ledger'}
-            </button>
-          </div>
+          <button
+            onClick={handleGenerate}
+            disabled={isSaving}
+            className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-emerald-300 disabled:to-teal-400 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
+          >
+            <Calculator className="h-6 w-6" />
+            {isSaving ? 'Generating...' : 'Save & Generate Ledger'}
+          </button>
+        </div>
 
-          {/* Summary */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-medium text-gray-800 mb-2">Current Entry Summary:</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-              <div>Total Stock: <span className="font-semibold">{formData.iruppu_normal + formData.iruppu_doubles + formData.iruppu_small}</span></div>
-              <div>Direct Sales: <span className="font-semibold">{formData.direct_sales}</span></div>
-              <div>Total Loss: <span className="font-semibold">{formData.sales_breakage + formData.set_breakage + formData.mortality}</span></div>
-              <div>Culls In: <span className="font-semibold">{formData.culls_in}</span></div>
+        {/* Summary */}
+        <div className="mt-6 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl border-2 border-emerald-200 shadow-inner">
+          <h3 className="font-bold text-gray-900 mb-4 text-lg">Current Entry Summary:</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div className="bg-white/70 rounded-lg p-3 shadow-sm">
+              <div className="text-gray-600 font-medium">Total Stock</div>
+              <div className="text-2xl font-bold text-emerald-700">{formData.iruppu_normal + formData.iruppu_doubles + formData.iruppu_small}</div>
+            </div>
+            <div className="bg-white/70 rounded-lg p-3 shadow-sm">
+              <div className="text-gray-600 font-medium">Direct Sales</div>
+              <div className="text-2xl font-bold text-blue-700">{formData.direct_sales}</div>
+            </div>
+            <div className="bg-white/70 rounded-lg p-3 shadow-sm">
+              <div className="text-gray-600 font-medium">Total Loss</div>
+              <div className="text-2xl font-bold text-orange-700">{formData.sales_breakage + formData.set_breakage + formData.mortality}</div>
+            </div>
+            <div className="bg-white/70 rounded-lg p-3 shadow-sm">
+              <div className="text-gray-600 font-medium">Culls In</div>
+              <div className="text-2xl font-bold text-purple-700">{formData.culls_in}</div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

@@ -31,7 +31,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased relative min-h-screen text-black-global`}>
         {/* Background image with translucent overlay */}
         <div className="pointer-events-none fixed inset-0 -z-10">
-          <div className="absolute inset-0 bg-[url('/poultry_farm.jpg')] bg-cover bg-center opacity-50" />
+          <div className="absolute inset-0 bg-[url('/poultry_farm.jpg')] bg-cover bg-center opacity-90" />
           <div className="absolute inset-0 bg-gradient-to-br from-white/60 to-white/30" />
         </div>
 
