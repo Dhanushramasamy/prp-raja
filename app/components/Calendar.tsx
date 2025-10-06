@@ -228,7 +228,7 @@ export default function CalendarView() {
               selected={selectedDate}
               onChange={handleDateSelect}
               dateFormat="dd/MM/yyyy"
-              className="w-full max-w-xs p-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none text-base sm:text-lg"
+              className="w-full max-w-xs p-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none text-base sm:text-lg text-black"
               placeholderText="Select a date"
             />
 

@@ -25,6 +25,12 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Force all text to render in black across the app */
+.text-black-global,
+.text-black-global * {
+  color: #000000 !important;
+}
+
 /* Card helpers */
 .card {
   @apply bg-white/90 backdrop-blur-sm shadow-md hover:shadow-lg transition-shadow rounded-lg;
