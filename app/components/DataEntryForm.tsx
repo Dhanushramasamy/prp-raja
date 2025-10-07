@@ -37,6 +37,7 @@ export default function DataEntryForm() {
     formData,
     setFormData,
     existingData,
+    setExistingData,
     setShowForm,
     setIsSaving,
     isSaving,
@@ -116,8 +117,10 @@ export default function DataEntryForm() {
         alert('Error saving data. Please try again.');
       } else {
         alert('Data saved successfully!');
-        // Refresh existing data
-        window.location.reload();
+        // Update existing data locally to avoid full page reload
+        const updatedExisting = { ...existingData };
+        updatedExisting[activeTab] = { ...formData };
+        setExistingData(updatedExisting);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -132,37 +135,54 @@ export default function DataEntryForm() {
 
     setIsSaving(true);
     try {
-      // First save the raw data
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
+      // 1) Ensure current active set's latest inputs are saved
       const dataToSave = {
         date: dateStr,
         set_number: activeTab,
         ...formData,
       };
-
       const { error: rawDataError } = await supabase
         .from('daily_poultry_data')
-        .upsert(dataToSave, {
-          onConflict: 'date,set_number',
-        });
-
+        .upsert(dataToSave, { onConflict: 'date,set_number' });
       if (rawDataError) {
         console.error('Error saving raw data:', rawDataError);
         alert('Error saving data. Please try again.');
         return;
       }
 
-      // Then calculate and save the ledger data
-      const calculationResult = await calculateLedgerData(selectedDate, activeTab, formData);
+      // 2) Load ALL saved sets for the selected date
+      const { data: allSetsData, error: fetchError } = await supabase
+        .from('daily_poultry_data')
+        .select('*')
+        .eq('date', dateStr);
+      if (fetchError) {
+        console.error('Error fetching sets for generation:', fetchError);
+        alert('Error preparing ledger generation. Please try again.');
+        return;
+      }
 
-      await saveCalculatedData(calculationResult.calculatedData);
+      // 3) For each saved set, calculate and save its ledger
+      const results = await Promise.all(
+        (allSetsData || []).map(async (row) => {
+          const calc = await calculateLedgerData(selectedDate, row.set_number as SetNumberType, {
+            iruppu_normal: row.iruppu_normal,
+            iruppu_doubles: row.iruppu_doubles,
+            iruppu_small: row.iruppu_small,
+            direct_sales: row.direct_sales,
+            sales_breakage: row.sales_breakage,
+            set_breakage: row.set_breakage,
+            mortality: row.mortality,
+            culls_in: row.culls_in,
+            vaaram: row.vaaram,
+          });
+          await saveCalculatedData(calc.calculatedData);
+          return calc.calculatedData.set_number;
+        })
+      );
 
-          alert('Data saved and ledger generated successfully!');
-
-          // Stay on the form for potential additional entries
-          // Users can navigate to Ledgers tab to view all data
-
+      alert(`Ledger generated for ${results.length} set(s) on ${format(selectedDate, 'dd/MM/yyyy')}.`);
     } catch (error) {
       console.error('Error:', error);
       alert('Error saving data. Please try again.');
