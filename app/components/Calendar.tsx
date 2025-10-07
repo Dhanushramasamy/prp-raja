@@ -40,12 +40,7 @@ export default function CalendarView() {
     }
   }, [selectedDate, refreshTrigger]);
 
-  // Auto-show form when calculated data exists (for editing existing data)
-  useEffect(() => {
-    if (selectedDate && Object.values(hasCalculatedData).some(exists => exists) && !showForm) {
-      setShowForm(true);
-    }
-  }, [hasCalculatedData, selectedDate, showForm]);
+  // Removed auto-showing form to allow manual control via buttons
 
   const checkExistingData = async (date: Date) => {
     setIsLoading(true);
@@ -144,7 +139,6 @@ export default function CalendarView() {
       });
 
       setExistingData(existingDataMap);
-      setShowForm(true);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -157,15 +151,7 @@ export default function CalendarView() {
     if (date) {
       loadExistingData(date);
 
-      // Check if we should show ledger automatically
-      checkCalculatedData(date).then(() => {
-        // If any calculated data exists, show ledger
-        if (Object.values(hasCalculatedData).some(exists => exists)) {
-          setShowForm(false);
-        } else {
-          setShowForm(true);
-        }
-      });
+      // No auto toggle; user decides when to open/close form
     } else {
       setShowForm(false);
       setExistingData({} as Record<SetNumberType, PoultryData>);
