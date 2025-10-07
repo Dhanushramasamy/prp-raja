@@ -46,7 +46,7 @@ export default function DataEntryForm() {
   const [activeTab, setActiveTab] = useState<SetNumberType>('B1');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const setNumbers: SetNumberType[] = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10'];
+  const setNumbers: SetNumberType[] = ['A3', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10'];
 
   // Update form data when switching tabs
   useEffect(() => {

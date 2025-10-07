@@ -113,7 +113,7 @@ export default function CalendarView() {
       const existingDataMap: Record<SetNumberType, PoultryData> = {} as Record<SetNumberType, PoultryData>;
 
       // Initialize all sets with default values
-      const setNumbers: SetNumberType[] = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10'];
+      const setNumbers: SetNumberType[] = ['A3', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10'];
       setNumbers.forEach(set => {
         existingDataMap[set] = {
           iruppu_normal: 0,

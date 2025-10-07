@@ -1,4 +1,4 @@
-export type SetNumberType = 'B1' | 'B2' | 'B3' | 'B4' | 'B5' | 'B6' | 'B7' | 'B8' | 'B9' | 'B10';
+export type SetNumberType = 'A3' | 'B1' | 'B2' | 'B3' | 'B4' | 'B5' | 'B6' | 'B7' | 'B8' | 'B9' | 'B10';
 
 export interface PoultryData {
   // Stock balance fields (user inputs)
