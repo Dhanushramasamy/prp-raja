@@ -27,6 +27,7 @@ const FIELD_LABELS = {
   set_breakage: 'Set Udaivu (செட் உடைவு)',
   mortality: 'Irappu (இறப்பு) - Mortality',
   culls_in: 'Culls (கல்லுகள்)',
+  in_count: 'IN',
 };
 
 export default function DataEntryForm() {
@@ -64,6 +65,7 @@ export default function DataEntryForm() {
         set_breakage: 0,
         mortality: 0,
         culls_in: 0,
+        in_count: 0,
       });
     }
   }, [activeTab, existingData, setFormData]);
@@ -175,6 +177,7 @@ export default function DataEntryForm() {
             set_breakage: row.set_breakage,
             mortality: row.mortality,
             culls_in: row.culls_in,
+            in_count: row.in_count,
             vaaram: row.vaaram,
           });
           await saveCalculatedData(calc.calculatedData);

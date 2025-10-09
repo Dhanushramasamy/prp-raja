@@ -197,7 +197,7 @@ function calculateProductionPercentage(totalProduction: number, previousEndingCh
 }
 
 function calculateEndingChickens(current: PoultryData, previous: { ending_chickens: number }): number {
-  return previous.ending_chickens - current.mortality + current.culls_in;
+  return previous.ending_chickens - current.mortality + current.culls_in + current.in_count;
 }
 
 function calculateClosingStock(current: PoultryData): number {

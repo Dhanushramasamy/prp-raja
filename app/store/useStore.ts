@@ -39,6 +39,7 @@ const initialFormData: PoultryData = {
   set_breakage: 0,
   mortality: 0,
   culls_in: 0,
+  in_count: 0,
   vaaram: '',
 };
 

@@ -12,6 +12,7 @@ export interface PoultryData {
   set_breakage: number; // set_udaivu (செட் உடைவு)
   mortality: number; // irappu (இறப்பு)
   culls_in: number; // கல்லுகள்
+  in_count: number; // IN
 
   // Week field
   vaaram?: string; // Week field in format "27.6"
@@ -58,6 +59,7 @@ export interface DatabasePoultryData {
   set_breakage: number;
   mortality: number;
   culls_in: number;
+  in_count: number;
 
   // Week field
   vaaram?: string;

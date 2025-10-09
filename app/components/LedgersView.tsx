@@ -14,9 +14,21 @@ export default function LedgersView() {
   const [dateFrom, setDateFrom] = useState<Date>(subDays(new Date(), 30));
   const [dateTo, setDateTo] = useState<Date>(new Date());
   const [selectedLedger, setSelectedLedger] = useState<CalculatedLedger | null>(null);
+  const [rawByKey, setRawByKey] = useState<Record<string, {
+    iruppu_normal: number;
+    iruppu_doubles: number;
+    iruppu_small: number;
+    in_count: number;
+    direct_sales: number;
+    sales_breakage: number;
+    set_breakage: number;
+    mortality: number;
+    culls_in: number;
+  }>>({});
 
   useEffect(() => {
     loadLedgerData();
+    loadRawData();
   }, [dateFrom, dateTo]);
 
   const loadLedgerData = async () => {
@@ -43,6 +55,43 @@ export default function LedgersView() {
       console.error('Error:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadRawData = async () => {
+    try {
+      const fromStr = format(dateFrom, 'yyyy-MM-dd');
+      const toStr = format(dateTo, 'yyyy-MM-dd');
+
+      const { data, error } = await supabase
+        .from('daily_poultry_data')
+        .select('date,set_number,iruppu_normal,iruppu_doubles,iruppu_small,in_count,direct_sales,sales_breakage,set_breakage,mortality,culls_in')
+        .gte('date', fromStr)
+        .lte('date', toStr);
+
+      if (error) {
+        console.error('Error loading raw data:', error);
+        return;
+      }
+
+      const map: Record<string, any> = {};
+      (data || []).forEach((row) => {
+        const key = `${row.date}|${row.set_number}`;
+        map[key] = {
+          iruppu_normal: row.iruppu_normal || 0,
+          iruppu_doubles: row.iruppu_doubles || 0,
+          iruppu_small: row.iruppu_small || 0,
+          in_count: row.in_count || 0,
+          direct_sales: row.direct_sales || 0,
+          sales_breakage: row.sales_breakage || 0,
+          set_breakage: row.set_breakage || 0,
+          mortality: row.mortality || 0,
+          culls_in: row.culls_in || 0,
+        };
+      });
+      setRawByKey(map);
+    } catch (error) {
+      console.error('Error:', error);
     }
   };
 
@@ -261,6 +310,17 @@ export default function LedgersView() {
                           <div>
                             <div>Open: {ledger.opening_stock}</div>
                             <div className="font-medium">Close: {ledger.closing_stock}</div>
+                            {(() => {
+                              const key = `${ledger.date}|${ledger.set_number}`;
+                              const raw = rawByKey[key];
+                              return (
+                                <div className="mt-1 text-xs text-gray-600">
+                                  <div>Iruppu Normal: {raw ? raw.iruppu_normal : 0}</div>
+                                  <div>Iruppu Doubles: {raw ? raw.iruppu_doubles : 0}</div>
+                                  <div>Iruppu Small: {raw ? raw.iruppu_small : 0}</div>
+                                </div>
+                              );
+                            })()}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -304,110 +364,145 @@ export default function LedgersView() {
                 </button>
               </div>
 
-              {/* Template Sheet Order - Left to Right */}
-              <div className="grid grid-cols-1 gap-3 sm:gap-4">
-                {/* Row 1: Basic Info */}
-                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-                  <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm">
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">Set</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.set_number}</div>
+              {/* Reordered details as requested */}
+              {(() => {
+                const key = `${selectedLedger.date}|${selectedLedger.set_number}`;
+                const raw = rawByKey[key] || {
+                  iruppu_normal: 0,
+                  iruppu_doubles: 0,
+                  iruppu_small: 0,
+                  in_count: 0,
+                  direct_sales: 0,
+                  sales_breakage: 0,
+                  set_breakage: 0,
+                  mortality: 0,
+                  culls_in: 0,
+                };
+                return (
+                  <div className="grid grid-cols-1 gap-3 sm:gap-4">
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm">
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">வாரம்</div>
+                          <div className="text-base sm:text-lg font-bold text-blue-600">{selectedLedger.vaaram}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">கோழி ஆரம்பம்</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.starting_chickens}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">கோழி இறப்பு</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.mortality_count}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">கோழி Culls</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.culls_count}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">கோழி IN</div>
+                          <div className="text-base sm:text-lg font-bold">{raw.in_count}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">கோழி முடிவு</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.ending_chickens}</div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">ஆரம்ப கோழி</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.starting_chickens}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">ஆரம்ப முட்டை</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.starting_eggs}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">சாதாரண உற்பத்தி</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.normal_production}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">இரட்டை உற்பத்தி</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.double_production}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">சிறிய உற்பத்தி</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.small_production}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">மொத்த உற்பத்தி</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.total_production}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">உற்பத்தி %</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.production_percentage}%</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">உற்பத்தி வித்தியாசம்</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.production_difference > 0 ? '+' : ''}{selectedLedger.production_difference}</div>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Row 2: Sales & Losses */}
-                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-                  <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm">
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">எணிக்கை</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.direct_sales}</div>
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm">
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">முட்டை ஆரம்பம்</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.starting_eggs}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">சாதாரண உற்பத்தி</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.normal_production}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">இரட்டை உற்பத்தி</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.double_production}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">சிறிய உற்பத்தி</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.small_production}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">மொத்த உற்பத்தி (முட்டை)</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.total_production}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">உற்பத்தி வித்தியாசம்</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.production_difference > 0 ? '+' : ''}{selectedLedger.production_difference}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">உற்பத்தி %</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.production_percentage}%</div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">விற்பனை உடைவு</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.sales_breakage}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">செட் உடைவு</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.set_breakage}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">இறப்பு</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.mortality_count}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">கல்லுகள்</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.culls_count}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">முடிவு கோழி</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.ending_chickens}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">தொடக்க இருப்பு</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.opening_stock}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">முடிவு இருப்பு</div>
-                      <div className="text-base sm:text-lg font-bold">{selectedLedger.closing_stock}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">வாரம்</div>
-                      <div className="text-base sm:text-lg font-bold text-blue-600">{selectedLedger.vaaram}</div>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Additional Details */}
-                <div className="bg-blue-50 rounded-lg p-3 sm:p-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">Date</div>
-                      <div className="text-sm sm:text-base font-medium">{format(new Date(selectedLedger.date), 'dd/MM/yyyy')}</div>
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm">
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">விற்பனையாளர்</div>
+                          <div className="text-base sm:text-lg font-bold">-</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">Sales Directly</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.direct_sales}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">விற்பனை உடைவு</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.sales_breakage}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">செட் உடைவு</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.set_breakage}</div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">Set Number</div>
-                      <div className="text-sm sm:text-base font-medium">{selectedLedger.set_number}</div>
+
+                    <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm">
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">இருப்பு Normal</div>
+                          <div className="text-base sm:text-lg font-bold">{raw.iruppu_normal}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">இருப்பு Doubles</div>
+                          <div className="text-base sm:text-lg font-bold">{raw.iruppu_doubles}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">இருப்பு Small</div>
+                          <div className="text-base sm:text-lg font-bold">{raw.iruppu_small}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">முடிவு இருப்பு</div>
+                          <div className="text-base sm:text-lg font-bold">{selectedLedger.closing_stock}</div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <div className="font-medium text-gray-700">வாரம்</div>
-                      <div className="text-sm sm:text-base font-medium text-blue-600">{selectedLedger.vaaram}</div>
+
+                    <div className="bg-blue-50 rounded-lg p-3 sm:p-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">Date</div>
+                          <div className="text-sm sm:text-base font-medium">{format(new Date(selectedLedger.date), 'dd/MM/yyyy')}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">Set Number</div>
+                          <div className="text-sm sm:text-base font-medium">{selectedLedger.set_number}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">வாரம்</div>
+                          <div className="text-sm sm:text-base font-medium text-blue-600">{selectedLedger.vaaram}</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                );
+              })()}
             </div>
           </div>
         </div>

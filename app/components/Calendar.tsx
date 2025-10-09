@@ -119,6 +119,7 @@ export default function CalendarView() {
           set_breakage: 0,
           mortality: 0,
           culls_in: 0,
+          in_count: 0,
           vaaram: '',
         };
       });
@@ -134,6 +135,7 @@ export default function CalendarView() {
           set_breakage: item.set_breakage,
           mortality: item.mortality,
           culls_in: item.culls_in,
+          in_count: item.in_count ?? 0,
           vaaram: item.vaaram,
         };
       });
@@ -176,6 +178,7 @@ export default function CalendarView() {
         set_breakage: 0,
         mortality: 0,
         culls_in: 0,
+        in_count: 0,
         vaaram: '',
       });
 
