@@ -182,7 +182,7 @@ function calculateNormalProduction(
   previous: { iruppu_normal: number },
   hasPreviousRawData: boolean
 ): number {
-  if (!hasPreviousRawData) return current.iruppu_normal;
+  if (!hasPreviousRawData || previous.iruppu_normal === 0) return current.iruppu_normal;
   const totalLosses = current.direct_sales + current.sales_breakage + current.set_breakage;
   return current.iruppu_normal + totalLosses - previous.iruppu_normal;
 }
@@ -192,7 +192,7 @@ function calculateDoubleProduction(
   previous: { iruppu_doubles: number },
   hasPreviousRawData: boolean
 ): number {
-  if (!hasPreviousRawData) return current.iruppu_doubles;
+  if (!hasPreviousRawData || previous.iruppu_doubles === 0) return current.iruppu_doubles;
   const totalLosses = current.direct_sales + current.sales_breakage + current.set_breakage;
   return current.iruppu_doubles + totalLosses - previous.iruppu_doubles;
 }
@@ -202,7 +202,7 @@ function calculateSmallProduction(
   previous: { iruppu_small: number },
   hasPreviousRawData: boolean
 ): number {
-  if (!hasPreviousRawData) return current.iruppu_small;
+  if (!hasPreviousRawData || previous.iruppu_small === 0) return current.iruppu_small;
   const totalLosses = current.direct_sales + current.sales_breakage + current.set_breakage;
   return current.iruppu_small + totalLosses - previous.iruppu_small;
 }
