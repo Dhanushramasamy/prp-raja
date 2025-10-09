@@ -20,6 +20,7 @@ export default function LedgerView({ date, onBack }: LedgerViewProps) {
 
   useEffect(() => {
     loadLedgerData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date]);
 
   const loadLedgerData = async () => {

@@ -26,8 +26,8 @@ const FIELD_LABELS = {
 export default function DataEntryForm() {
   const {
     selectedDate,
-    selectedSet,
-    setSelectedSet,
+    // selectedSet,
+    // setSelectedSet,
     formData,
     setFormData,
     existingData,
@@ -35,7 +35,7 @@ export default function DataEntryForm() {
     setShowForm,
     setIsSaving,
     isSaving,
-    setSelectedDate,
+    // setSelectedDate,
   } = useStore();
 
   const [activeTab, setActiveTab] = useState<SetNumberType>('B1');

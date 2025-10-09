@@ -22,16 +22,8 @@ export default function CalendarView() {
     isLoading,
   } = useStore();
 
-  const [hasData, setHasData] = useState<Record<string, boolean>>({});
   const [hasCalculatedData, setHasCalculatedData] = useState<Record<string, boolean>>({});
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  // Check for existing data when date changes
-  useEffect(() => {
-    if (selectedDate) {
-      checkExistingData(selectedDate);
-    }
-  }, [selectedDate]);
 
   // Check for calculated data when component mounts or when we need to refresh
   useEffect(() => {
@@ -42,31 +34,7 @@ export default function CalendarView() {
 
   // Removed auto-showing form to allow manual control via buttons
 
-  const checkExistingData = async (date: Date) => {
-    setIsLoading(true);
-    try {
-      const dateStr = format(date, 'yyyy-MM-dd');
-      const { data, error } = await supabase
-        .from('daily_poultry_data')
-        .select('set_number')
-        .eq('date', dateStr);
-
-      if (error) {
-        console.error('Error fetching data:', error);
-        return;
-      }
-
-      const existingSets: Record<string, boolean> = {};
-      data?.forEach((item) => {
-        existingSets[item.set_number] = true;
-      });
-      setHasData(existingSets);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Removed existing data preview; not used in UI
 
   const checkCalculatedData = async (date: Date) => {
     try {
