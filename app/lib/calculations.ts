@@ -72,6 +72,8 @@ export async function calculateLedgerData(
     .eq('set_number', setNumber)
     .single();
 
+  const hasPreviousRawData = !!previousRawData; // if false, compute production as today's iruppu without losses adjustment
+
   // Get the most recent vaaram for this specific set
   let latestVaaram = "1.1"; // Default starting value
 
@@ -125,9 +127,9 @@ export async function calculateLedgerData(
     starting_eggs: previousData.closing_stock,
 
     // Production calculations
-    normal_production: calculateNormalProduction(currentData, previousData),
-    double_production: calculateDoubleProduction(currentData, previousData),
-    small_production: calculateSmallProduction(currentData, previousData),
+    normal_production: calculateNormalProduction(currentData, previousData, hasPreviousRawData),
+    double_production: calculateDoubleProduction(currentData, previousData, hasPreviousRawData),
+    small_production: calculateSmallProduction(currentData, previousData, hasPreviousRawData),
     total_production: 0, // Will be calculated after individual productions
 
     // Production metrics
@@ -175,17 +177,32 @@ export async function calculateLedgerData(
 }
 
 // Individual calculation functions
-function calculateNormalProduction(current: PoultryData, previous: { iruppu_normal: number }): number {
+function calculateNormalProduction(
+  current: PoultryData,
+  previous: { iruppu_normal: number },
+  hasPreviousRawData: boolean
+): number {
+  if (!hasPreviousRawData) return current.iruppu_normal;
   const totalLosses = current.direct_sales + current.sales_breakage + current.set_breakage;
   return current.iruppu_normal + totalLosses - previous.iruppu_normal;
 }
 
-function calculateDoubleProduction(current: PoultryData, previous: { iruppu_doubles: number }): number {
+function calculateDoubleProduction(
+  current: PoultryData,
+  previous: { iruppu_doubles: number },
+  hasPreviousRawData: boolean
+): number {
+  if (!hasPreviousRawData) return current.iruppu_doubles;
   const totalLosses = current.direct_sales + current.sales_breakage + current.set_breakage;
   return current.iruppu_doubles + totalLosses - previous.iruppu_doubles;
 }
 
-function calculateSmallProduction(current: PoultryData, previous: { iruppu_small: number }): number {
+function calculateSmallProduction(
+  current: PoultryData,
+  previous: { iruppu_small: number },
+  hasPreviousRawData: boolean
+): number {
+  if (!hasPreviousRawData) return current.iruppu_small;
   const totalLosses = current.direct_sales + current.sales_breakage + current.set_breakage;
   return current.iruppu_small + totalLosses - previous.iruppu_small;
 }
