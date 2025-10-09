@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { SetNumberType, PoultryData, CalculatedLedger } from '../types';
+import { SetNumberType, PoultryData } from '../types';
 
 interface Store {
   // Calendar state
@@ -43,7 +43,7 @@ const initialFormData: PoultryData = {
   vaaram: '',
 };
 
-export const useStore = create<Store>((set, get) => ({
+export const useStore = create<Store>((set) => ({
   // Calendar state
   selectedDate: null,
   setSelectedDate: (date) => set({ selectedDate: date }),

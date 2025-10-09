@@ -2,14 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import {
-  Save,
-  FileText,
-  ArrowLeft,
-  Plus,
-  Minus,
-  Calculator
-} from 'lucide-react';
+import { Save, ArrowLeft, Plus, Minus, Calculator } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { supabase, SetNumberType } from '../lib/supabase';
 import { PoultryData } from '../types';

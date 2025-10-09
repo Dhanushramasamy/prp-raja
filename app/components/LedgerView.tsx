@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { Eye, Download, ArrowLeft } from 'lucide-react';
+import { Download, ArrowLeft } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { supabase, SetNumberType } from '../lib/supabase';
 import { CalculatedLedger } from '../types';

@@ -1,10 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { format, subDays } from 'date-fns';
 import { Calendar as CalendarIcon, Download, Search, Eye } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { CalculatedLedger } from '../types';
+
+type RawRow = {
+  iruppu_normal: number;
+  iruppu_doubles: number;
+  iruppu_small: number;
+  in_count: number;
+  direct_sales: number;
+  sales_breakage: number;
+  set_breakage: number;
+  mortality: number;
+  culls_in: number;
+};
 
 export default function LedgersView() {
   const [ledgerData, setLedgerData] = useState<CalculatedLedger[]>([]);
@@ -14,24 +26,11 @@ export default function LedgersView() {
   const [dateFrom, setDateFrom] = useState<Date>(subDays(new Date(), 30));
   const [dateTo, setDateTo] = useState<Date>(new Date());
   const [selectedLedger, setSelectedLedger] = useState<CalculatedLedger | null>(null);
-  const [rawByKey, setRawByKey] = useState<Record<string, {
-    iruppu_normal: number;
-    iruppu_doubles: number;
-    iruppu_small: number;
-    in_count: number;
-    direct_sales: number;
-    sales_breakage: number;
-    set_breakage: number;
-    mortality: number;
-    culls_in: number;
-  }>>({});
+  const [rawByKey, setRawByKey] = useState<Record<string, RawRow>>({});
 
-  useEffect(() => {
-    loadLedgerData();
-    loadRawData();
-  }, [dateFrom, dateTo]);
+  // Effects are placed after callbacks to avoid use-before-define
 
-  const loadLedgerData = async () => {
+  const loadLedgerData = useCallback(async () => {
     setLoading(true);
     try {
       const fromStr = format(dateFrom, 'yyyy-MM-dd');
@@ -56,9 +55,9 @@ export default function LedgersView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateFrom, dateTo]);
 
-  const loadRawData = async () => {
+  const loadRawData = useCallback(async () => {
     try {
       const fromStr = format(dateFrom, 'yyyy-MM-dd');
       const toStr = format(dateTo, 'yyyy-MM-dd');
@@ -74,7 +73,7 @@ export default function LedgersView() {
         return;
       }
 
-      const map: Record<string, any> = {};
+      const map: Record<string, RawRow> = {};
       (data || []).forEach((row) => {
         const key = `${row.date}|${row.set_number}`;
         map[key] = {
@@ -93,7 +92,12 @@ export default function LedgersView() {
     } catch (error) {
       console.error('Error:', error);
     }
-  };
+  }, [dateFrom, dateTo]);
+
+  useEffect(() => {
+    loadLedgerData();
+    loadRawData();
+  }, [loadLedgerData, loadRawData]);
 
   const filteredData = ledgerData.filter((ledger) => {
     const matchesSearch = searchTerm === '' ||
