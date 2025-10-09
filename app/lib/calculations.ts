@@ -72,7 +72,7 @@ export async function calculateLedgerData(
     .eq('set_number', setNumber)
     .single();
 
-  const hasPreviousRawData = !!previousRawData; // if false, compute production as today's iruppu without losses adjustment
+  const hasPreviousRawData = !!previousRawData; // if false, compute production as today's iruppu + per-category direct + WB
 
   // Get the most recent vaaram for this specific set
   let latestVaaram = "1.1"; // Default starting value
@@ -136,10 +136,7 @@ export async function calculateLedgerData(
     production_percentage: 0, // Will be calculated after total production
     production_difference: previousData.total_production - 0, // Will be updated after total production
 
-    // Sales & Losses (direct from input)
-    direct_sales: currentData.direct_sales,
-    sales_breakage: currentData.sales_breakage,
-    set_breakage: currentData.set_breakage,
+    // No direct sales stored in calculated_ledger table
     mortality_count: currentData.mortality,
     culls_count: currentData.culls_in,
 
@@ -166,9 +163,9 @@ export async function calculateLedgerData(
     previousData.ending_chickens
   );
 
-  // Calculate production difference
+  // Calculate production difference (today - yesterday)
   calculatedData.production_difference =
-    previousData.total_production - calculatedData.total_production;
+    calculatedData.total_production - previousData.total_production;
 
   return {
     calculatedData,
@@ -182,9 +179,14 @@ function calculateNormalProduction(
   previous: { iruppu_normal: number },
   hasPreviousRawData: boolean
 ): number {
-  if (!hasPreviousRawData || previous.iruppu_normal === 0) return current.iruppu_normal;
-  const totalLosses = current.direct_sales + current.sales_breakage + current.set_breakage;
-  return current.iruppu_normal + totalLosses - previous.iruppu_normal;
+  const todaySum =
+    (current.iruppu_normal || 0) +
+    (current.direct_sales_normal || 0) +
+    (current.normal_wb || 0) +
+    (current.sales_breakage || 0) +
+    (current.set_breakage || 0);
+  if (!hasPreviousRawData || previous.iruppu_normal === 0) return todaySum;
+  return todaySum - previous.iruppu_normal;
 }
 
 function calculateDoubleProduction(
@@ -192,9 +194,11 @@ function calculateDoubleProduction(
   previous: { iruppu_doubles: number },
   hasPreviousRawData: boolean
 ): number {
-  if (!hasPreviousRawData || previous.iruppu_doubles === 0) return current.iruppu_doubles;
-  const totalLosses = current.direct_sales + current.sales_breakage + current.set_breakage;
-  return current.iruppu_doubles + totalLosses - previous.iruppu_doubles;
+  const hasTodayInput = (current.iruppu_doubles || 0) !== 0 || (current.direct_sales_doubles || 0) !== 0 || (current.doubles_wb || 0) !== 0;
+  if (!hasTodayInput) return 0; // treat empty today inputs as empty production
+  const todaySum = (current.iruppu_doubles || 0) + (current.direct_sales_doubles || 0) + (current.doubles_wb || 0);
+  if (!hasPreviousRawData || previous.iruppu_doubles === 0) return todaySum;
+  return todaySum - previous.iruppu_doubles;
 }
 
 function calculateSmallProduction(
@@ -202,9 +206,11 @@ function calculateSmallProduction(
   previous: { iruppu_small: number },
   hasPreviousRawData: boolean
 ): number {
-  if (!hasPreviousRawData || previous.iruppu_small === 0) return current.iruppu_small;
-  const totalLosses = current.direct_sales + current.sales_breakage + current.set_breakage;
-  return current.iruppu_small + totalLosses - previous.iruppu_small;
+  const hasTodayInput = (current.iruppu_small || 0) !== 0 || (current.direct_sales_small || 0) !== 0 || (current.small_wb || 0) !== 0;
+  if (!hasTodayInput) return 0; // treat empty today inputs as empty production
+  const todaySum = (current.iruppu_small || 0) + (current.direct_sales_small || 0) + (current.small_wb || 0);
+  if (!hasPreviousRawData || previous.iruppu_small === 0) return todaySum;
+  return todaySum - previous.iruppu_small;
 }
 
 function calculateProductionPercentage(totalProduction: number, previousEndingChickens: number): number {

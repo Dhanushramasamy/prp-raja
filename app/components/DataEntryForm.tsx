@@ -15,12 +15,21 @@ const FIELD_LABELS = {
   iruppu_small: 'Iruppu Small (இருப்பு சிறிய)',
 
   // Sales and losses
-  direct_sales: 'Ennaikai (எணிக்கை) - Direct Sales',
+  direct_sales_normal: 'Direct Sales - Normal',
+  direct_sales_doubles: 'Direct Sales - Doubles',
+  direct_sales_small: 'Direct Sales - Small',
   sales_breakage: 'Virpanai Udaivu (விற்பனை உடைவு)',
   set_breakage: 'Set Udaivu (செட் உடைவு)',
+  // Removed global breakage fields
   mortality: 'Irappu (இறப்பு) - Mortality',
   culls_in: 'Culls (கல்லுகள்)',
   in_count: 'IN',
+
+  // W.B
+  normal_wb: 'Normal - W.B',
+  doubles_wb: 'Doubles - W.B',
+  small_wb: 'Small - W.B',
+  virpanaiyalar: 'Virpanaiyalar (Vendor Name)',
 };
 
 export default function DataEntryForm() {
@@ -53,12 +62,17 @@ export default function DataEntryForm() {
         iruppu_normal: 0,
         iruppu_doubles: 0,
         iruppu_small: 0,
-        direct_sales: 0,
+        direct_sales_normal: 0,
+        direct_sales_doubles: 0,
+        direct_sales_small: 0,
         sales_breakage: 0,
         set_breakage: 0,
         mortality: 0,
         culls_in: 0,
         in_count: 0,
+        normal_wb: 0,
+        doubles_wb: 0,
+        small_wb: 0,
       });
     }
   }, [activeTab, existingData, setFormData]);
@@ -165,12 +179,17 @@ export default function DataEntryForm() {
             iruppu_normal: row.iruppu_normal,
             iruppu_doubles: row.iruppu_doubles,
             iruppu_small: row.iruppu_small,
-            direct_sales: row.direct_sales,
+            direct_sales_normal: row.direct_sales_normal,
+            direct_sales_doubles: row.direct_sales_doubles,
+            direct_sales_small: row.direct_sales_small,
             sales_breakage: row.sales_breakage,
             set_breakage: row.set_breakage,
             mortality: row.mortality,
             culls_in: row.culls_in,
             in_count: row.in_count,
+            normal_wb: row.normal_wb,
+            doubles_wb: row.doubles_wb,
+            small_wb: row.small_wb,
             vaaram: row.vaaram,
           });
           await saveCalculatedData(calc.calculatedData);
@@ -323,12 +342,12 @@ export default function DataEntryForm() {
               <div className="text-2xl font-bold text-emerald-700">{formData.iruppu_normal + formData.iruppu_doubles + formData.iruppu_small}</div>
             </div>
             <div className="bg-white/70 rounded-lg p-3 shadow-sm">
-              <div className="text-gray-600 font-medium">Direct Sales</div>
-              <div className="text-2xl font-bold text-blue-700">{formData.direct_sales}</div>
+              <div className="text-gray-600 font-medium">Direct Sales (Total)</div>
+              <div className="text-2xl font-bold text-blue-700">{(formData.direct_sales_normal || 0) + (formData.direct_sales_doubles || 0) + (formData.direct_sales_small || 0)}</div>
             </div>
             <div className="bg-white/70 rounded-lg p-3 shadow-sm">
               <div className="text-gray-600 font-medium">Total Loss</div>
-              <div className="text-2xl font-bold text-orange-700">{formData.sales_breakage + formData.set_breakage + formData.mortality}</div>
+              <div className="text-2xl font-bold text-orange-700">{formData.mortality}</div>
             </div>
             <div className="bg-white/70 rounded-lg p-3 shadow-sm">
               <div className="text-gray-600 font-medium">Culls In</div>

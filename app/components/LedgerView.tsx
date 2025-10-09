@@ -43,6 +43,8 @@ export default function LedgerView({ date, onBack }: LedgerViewProps) {
       const setNumbers: SetNumberType[] = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10'];
       setNumbers.forEach(set => {
         ledgerMap[set] = {
+          date: dateStr,
+          set_number: set,
           starting_chickens: 0,
           starting_eggs: 0,
           normal_production: 0,
@@ -51,9 +53,6 @@ export default function LedgerView({ date, onBack }: LedgerViewProps) {
           total_production: 0,
           production_percentage: 0,
           production_difference: 0,
-          direct_sales: 0,
-          sales_breakage: 0,
-          set_breakage: 0,
           mortality_count: 0,
           culls_count: 0,
           ending_chickens: 0,
@@ -205,27 +204,8 @@ export default function LedgerView({ date, onBack }: LedgerViewProps) {
               </div>
             </div>
 
-            {/* Bottom Section - Sales & Stock */}
+            {/* Bottom Section - Stock */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Sales & Breakage */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">விற்பனை மற்றும் உடைவு (SALES & BREAKAGE)</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <div className="text-sm text-gray-600">எணிக்கை (Direct Sales)</div>
-                    <div className="text-xl font-bold text-blue-600">{currentLedger?.direct_sales || 0}</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm text-gray-600">விற்பனை உடைவு (Sales Breakage)</div>
-                    <div className="text-xl font-bold text-orange-600">{currentLedger?.sales_breakage || 0}</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm text-gray-600">செட் உடைவு (Set Breakage)</div>
-                    <div className="text-xl font-bold text-red-600">{currentLedger?.set_breakage || 0}</div>
-                  </div>
-                </div>
-              </div>
-
               {/* Stock */}
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">இருப்பு (STOCK)</h3>

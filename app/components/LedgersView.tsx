@@ -11,11 +11,18 @@ type RawRow = {
   iruppu_doubles: number;
   iruppu_small: number;
   in_count: number;
-  direct_sales: number;
+  direct_sales: number; // aggregated convenience
+  direct_sales_normal: number;
+  direct_sales_doubles: number;
+  direct_sales_small: number;
+  normal_wb: number;
+  doubles_wb: number;
+  small_wb: number;
   sales_breakage: number;
   set_breakage: number;
   mortality: number;
   culls_in: number;
+  virpanaiyalar?: string;
 };
 
 export default function LedgersView() {
@@ -64,7 +71,7 @@ export default function LedgersView() {
 
       const { data, error } = await supabase
         .from('daily_poultry_data')
-        .select('date,set_number,iruppu_normal,iruppu_doubles,iruppu_small,in_count,direct_sales,sales_breakage,set_breakage,mortality,culls_in')
+        .select('date,set_number,iruppu_normal,iruppu_doubles,iruppu_small,in_count,direct_sales_normal,direct_sales_doubles,direct_sales_small,normal_wb,doubles_wb,small_wb,sales_breakage,set_breakage,mortality,culls_in,virpanaiyalar')
         .gte('date', fromStr)
         .lte('date', toStr);
 
@@ -81,7 +88,13 @@ export default function LedgersView() {
           iruppu_doubles: row.iruppu_doubles || 0,
           iruppu_small: row.iruppu_small || 0,
           in_count: row.in_count || 0,
-          direct_sales: row.direct_sales || 0,
+          direct_sales: (row.direct_sales_normal || 0) + (row.direct_sales_doubles || 0) + (row.direct_sales_small || 0),
+          direct_sales_normal: row.direct_sales_normal || 0,
+          direct_sales_doubles: row.direct_sales_doubles || 0,
+          direct_sales_small: row.direct_sales_small || 0,
+          normal_wb: row.normal_wb || 0,
+          doubles_wb: row.doubles_wb || 0,
+          small_wb: row.small_wb || 0,
           sales_breakage: row.sales_breakage || 0,
           set_breakage: row.set_breakage || 0,
           mortality: row.mortality || 0,
@@ -126,7 +139,7 @@ export default function LedgersView() {
     const headers = [
       'Date', 'Set', 'Vaaram', 'Starting Chickens', 'Starting Eggs', 'Normal Production',
       'Double Production', 'Small Production', 'Total Production', 'Production %',
-      'Production Difference', 'Direct Sales', 'Sales Breakage', 'Set Breakage',
+      'Production Difference', 'Direct Sales',
       'Mortality', 'Culls', 'Ending Chickens', 'Opening Stock', 'Closing Stock'
     ];
 
@@ -144,9 +157,9 @@ export default function LedgersView() {
         ledger.total_production,
         ledger.production_percentage,
         ledger.production_difference,
-        ledger.direct_sales,
-        ledger.sales_breakage,
-        ledger.set_breakage,
+        '',
+        '',
+        '',
         ledger.mortality_count,
         ledger.culls_count,
         ledger.ending_chickens,
@@ -305,8 +318,8 @@ export default function LedgersView() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-gray-900">
                           <div>
-                            <div>Sales: {ledger.direct_sales}</div>
-                            <div>Breakage: {ledger.sales_breakage + ledger.set_breakage}</div>
+                            <div>Sales Normal: {(rawByKey[`${ledger.date}|${ledger.set_number}`]?.direct_sales_normal) ?? 0}</div>
+                            <div>Breakage: -</div>
                             <div>Mortality: {ledger.mortality_count}</div>
                           </div>
                         </td>
@@ -348,7 +361,7 @@ export default function LedgersView() {
       {/* Detailed Ledger View Modal */}
       {selectedLedger && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-4 z-50">
-          <div className="bg-white rounded-lg w-full max-w-6xl max-h-[95vh] overflow-hidden">
+          <div className="bg-white rounded-lg w-full max-w-6xl max-h-[95vh] overflow-y-auto">
             <div className="p-3 sm:p-6">
               {/* Header */}
               <div className="flex justify-between items-center mb-6">
@@ -450,20 +463,41 @@ export default function LedgersView() {
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm">
                         <div className="text-center">
                           <div className="font-medium text-gray-700">விற்பனையாளர்</div>
-                          <div className="text-base sm:text-lg font-bold">-</div>
+                          <div className="text-base sm:text-lg font-bold">{raw.virpanaiyalar || '-'}</div>
                         </div>
                         <div className="text-center">
-                          <div className="font-medium text-gray-700">Sales Directly</div>
-                          <div className="text-base sm:text-lg font-bold">{selectedLedger.direct_sales}</div>
+                          <div className="font-medium text-gray-700">Sales Normal</div>
+                          <div className="text-base sm:text-lg font-bold">{raw.direct_sales_normal}</div>
                         </div>
                         <div className="text-center">
-                          <div className="font-medium text-gray-700">விற்பனை உடைவு</div>
-                          <div className="text-base sm:text-lg font-bold">{selectedLedger.sales_breakage}</div>
+                          <div className="font-medium text-gray-700">Sales Doubles</div>
+                          <div className="text-base sm:text-lg font-bold">{raw.direct_sales_doubles}</div>
                         </div>
                         <div className="text-center">
-                          <div className="font-medium text-gray-700">செட் உடைவு</div>
-                          <div className="text-base sm:text-lg font-bold">{selectedLedger.set_breakage}</div>
+                          <div className="font-medium text-gray-700">Sales Small</div>
+                          <div className="text-base sm:text-lg font-bold">{raw.direct_sales_small}</div>
                         </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">Normal W.B</div>
+                          <div className="text-base sm:text-lg font-bold">{raw.normal_wb}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">Doubles W.B</div>
+                          <div className="text-base sm:text-lg font-bold">{raw.doubles_wb}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">Small W.B</div>
+                          <div className="text-base sm:text-lg font-bold">{raw.small_wb}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">Virpanai Udaivu</div>
+                          <div className="text-base sm:text-lg font-bold">{raw.sales_breakage}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-700">Set Udaivu</div>
+                          <div className="text-base sm:text-lg font-bold">{raw.set_breakage}</div>
+                        </div>
+                        {/* Breakage columns removed from calculated ledger */}
                       </div>
                     </div>
 
