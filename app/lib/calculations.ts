@@ -186,7 +186,9 @@ function calculateNormalProduction(
     (current.sales_breakage || 0) +
     (current.set_breakage || 0);
   if (!hasPreviousRawData || previous.iruppu_normal === 0) return todaySum;
-  return todaySum - previous.iruppu_normal;
+  const production = todaySum - previous.iruppu_normal;
+  // If production is negative, ignore it and return 0
+  return production < 0 ? 0 : production;
 }
 
 function calculateDoubleProduction(
@@ -198,7 +200,9 @@ function calculateDoubleProduction(
   if (!hasTodayInput) return 0; // treat empty today inputs as empty production
   const todaySum = (current.iruppu_doubles || 0) + (current.direct_sales_doubles || 0) + (current.doubles_wb || 0);
   if (!hasPreviousRawData || previous.iruppu_doubles === 0) return todaySum;
-  return todaySum - previous.iruppu_doubles;
+  const production = todaySum - previous.iruppu_doubles;
+  // If production is negative, ignore it and return 0
+  return production < 0 ? 0 : production;
 }
 
 function calculateSmallProduction(
@@ -210,7 +214,9 @@ function calculateSmallProduction(
   if (!hasTodayInput) return 0; // treat empty today inputs as empty production
   const todaySum = (current.iruppu_small || 0) + (current.direct_sales_small || 0) + (current.small_wb || 0);
   if (!hasPreviousRawData || previous.iruppu_small === 0) return todaySum;
-  return todaySum - previous.iruppu_small;
+  const production = todaySum - previous.iruppu_small;
+  // If production is negative, ignore it and return 0
+  return production < 0 ? 0 : production;
 }
 
 function calculateProductionPercentage(totalProduction: number, previousEndingChickens: number): number {
