@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Download, ArrowLeft } from 'lucide-react';
-import { useStore } from '../store/useStore';
 import { supabase, SetNumberType } from '../lib/supabase';
 import { CalculatedLedger } from '../types';
 
@@ -13,7 +12,6 @@ interface LedgerViewProps {
 }
 
 export default function LedgerView({ date, onBack }: LedgerViewProps) {
-  const { selectedSet } = useStore();
   const [ledgerData, setLedgerData] = useState<Record<SetNumberType, CalculatedLedger>>({} as Record<SetNumberType, CalculatedLedger>);
   const [loading, setLoading] = useState(true);
   const [activeSet, setActiveSet] = useState<SetNumberType>('B1');

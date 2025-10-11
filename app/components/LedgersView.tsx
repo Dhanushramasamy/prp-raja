@@ -2,14 +2,28 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { format, subDays, addDays } from 'date-fns';
-import { Calendar as CalendarIcon, Download, Search, Eye, ChevronLeft, ChevronRight, Image } from 'lucide-react';
+import { Calendar as CalendarIcon, Download, Search, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { CalculatedLedger } from '../types';
 
 // Extend window interface for html2canvas
+interface Html2CanvasOptions {
+  backgroundColor?: string;
+  scale?: number;
+  useCORS?: boolean;
+  allowTaint?: boolean;
+  foreignObjectRendering?: boolean;
+  logging?: boolean;
+  onclone?: (clonedDoc: Document) => void;
+  width?: number;
+  height?: number;
+}
+
 declare global {
   interface Window {
-    html2canvas: any;
+    html2canvas: {
+      (element: HTMLElement, options?: Html2CanvasOptions): Promise<HTMLCanvasElement>;
+    };
   }
 }
 
@@ -127,15 +141,6 @@ export default function LedgersView() {
     setSelectedDate(new Date());
   };
 
-  // Helper function to extract serial number from vaaram
-  const getSerialNumber = (vaaram: string | undefined): number => {
-    if (!vaaram || !vaaram.includes('.')) return 0;
-    const [weekStr, dayStr] = vaaram.split('.');
-    const week = parseInt(weekStr, 10);
-    const day = parseInt(dayStr, 10);
-    if (isNaN(week) || isNaN(day)) return 0;
-    return week * 7 + day; // Convert to serial number
-  };
 
   const filteredData = ledgerData.filter((ledger) => {
     const matchesSearch = searchTerm === '' ||
@@ -149,12 +154,6 @@ export default function LedgersView() {
 
   // Get all sets in order as they appear in physical sheet
   const allSets = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9', 'B10', 'A3'] as const;
-  
-  // Get the latest date's data for each set
-  const latestData = allSets.map(setNumber => {
-    const setData = filteredData.find(ledger => ledger.set_number === setNumber);
-    return setData;
-  }).filter(Boolean) as CalculatedLedger[];
 
   const exportToCSV = () => {
     const headers = [
@@ -567,7 +566,7 @@ export default function LedgersView() {
           onClick={downloadAsImage}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
         >
-          <Image className="h-5 w-5" />
+          <ImageIcon className="h-5 w-5" />
           Download as Image
         </button>
       </div>
