@@ -9,6 +9,10 @@ import { PoultryData } from '../types';
 import { calculateLedgerData, saveCalculatedData } from '../lib/calculations';
 
 const FIELD_LABELS = {
+  // Week and vendor info
+  vaaram: 'Vaaram (வாரம்)',
+  virpanaiyalar: 'Virpanaiyalar (Vendor Name)',
+  
   // Stock balance fields (these are the actual inputs)
   iruppu_normal: 'Iruppu Normal (இருப்பு சாதாரண)',
   iruppu_doubles: 'Iruppu Doubles (இருப்பு இரட்டை)',
@@ -29,7 +33,6 @@ const FIELD_LABELS = {
   normal_wb: 'Normal - W.B',
   doubles_wb: 'Doubles - W.B',
   small_wb: 'Small - W.B',
-  virpanaiyalar: 'Virpanaiyalar (Vendor Name)',
 };
 
 export default function DataEntryForm() {
@@ -78,8 +81,13 @@ export default function DataEntryForm() {
   }, [activeTab, existingData, setFormData]);
 
   const handleInputChange = (field: keyof PoultryData, value: string) => {
-    const numValue = parseFloat(value) || 0;
-    setFormData({ [field]: numValue });
+    // Handle string fields differently from number fields
+    if (field === 'virpanaiyalar' || field === 'vaaram') {
+      setFormData({ [field]: value });
+    } else {
+      const numValue = parseFloat(value) || 0;
+      setFormData({ [field]: numValue });
+    }
 
     // Clear error when user starts typing
     if (errors[field]) {
@@ -90,10 +98,10 @@ export default function DataEntryForm() {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Basic validation - ensure non-negative numbers (skip vaaram which is a string)
+    // Basic validation - ensure non-negative numbers (skip string fields like vaaram and virpanaiyalar)
     Object.keys(formData).forEach(key => {
       const value = formData[key as keyof PoultryData];
-      if (key !== 'vaaram' && typeof value === 'number' && value < 0) {
+      if (key !== 'vaaram' && key !== 'virpanaiyalar' && typeof value === 'number' && value < 0) {
         newErrors[key] = 'Cannot be negative';
       }
     });
@@ -259,7 +267,35 @@ export default function DataEntryForm() {
           {/* Form Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(FIELD_LABELS).map(([key, label]) => {
-              // Handle all fields as number inputs
+              // Check if this is a string field (virpanaiyalar or vaaram)
+              const isStringField = key === 'virpanaiyalar' || key === 'vaaram';
+              
+              if (isStringField) {
+                // Render text input for string fields
+                return (
+                  <div key={key} className="space-y-2">
+                    <label className="block text-sm font-bold text-gray-800">
+                      {label}
+                    </label>
+                    <input
+                      type="text"
+                      value={(formData[key as keyof PoultryData] as string) || ''}
+                      onChange={(e) => handleInputChange(key as keyof PoultryData, e.target.value)}
+                      className={`w-full p-3 border-2 rounded-xl focus:outline-none focus:ring-4 transition-all font-semibold text-base ${
+                        errors[key]
+                          ? 'border-red-500 focus:border-red-500 focus:ring-red-100'
+                          : 'border-emerald-300 focus:border-emerald-500 focus:ring-emerald-100'
+                      }`}
+                      placeholder="Enter text"
+                    />
+                    {errors[key] && (
+                      <p className="text-sm text-red-600 font-medium">{errors[key]}</p>
+                    )}
+                  </div>
+                );
+              }
+              
+              // Render number input with +/- buttons for numeric fields
               return (
                 <div key={key} className="space-y-2">
                   <label className="block text-sm font-bold text-gray-800">
